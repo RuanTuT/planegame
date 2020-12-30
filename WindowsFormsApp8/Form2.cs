@@ -107,7 +107,7 @@ namespace 飞机大战
 
             Rectangle rec3 = new Rectangle(blood_x, 50, bloodImg.Width, bloodImg.Height);//创建一个医疗包大小的矩形
             Rectangle rec4 = new Rectangle(MyPlane.x, MyPlane.y, MyPlane.myPlaneImage.Width, MyPlane.myPlaneImage.Height);
-            if (new Random().Next(0, 300) == 50)//使医疗包随机投放
+            if (new Random().Next(0, 200) == 50)//使医疗包随机投放
             {
                 isDropBox = true;
                 blood_y = 50;
@@ -126,7 +126,7 @@ namespace 飞机大战
         {
             this.BackMove(g);
             g.DrawImage(images[index], pic_x, pic_y, 420, 630);
-            g.DrawImage(images[index], pic_x, pic_y - 630, 420, 630);       //绘制背景w
+            g.DrawImage(images[index], pic_x, pic_y - 630, 420, 630);       //绘制背景
             MyPlane.MyPlaneShow(g);//绘制飞机
             MyPlane.MyPlaneMove();//通过键盘控制飞机移动
 
@@ -143,7 +143,10 @@ namespace 飞机大战
             
             MyBullet.ProduceBullet();
             MyBullet.MybulMove(g);
-           MyBullet.isHitEnemy(g); 
+           MyBullet.isHitEnemy(g);
+            EnemyBullet.ProduceEnbul();
+            EnemyBullet.Move(g);
+            EnemyBullet.isHitplane(g);
            
 
             this.ProduceShotgun();
@@ -278,11 +281,11 @@ namespace 飞机大战
         /// <param name="g"></param>
         public static void MyPlaneShow(Graphics g)
         {
-            if (health > 90)
+            if (health > 0)
             {
                 g.DrawImage(myPlaneImage, x, y);
             }
-            else if (health <= 90)
+            else if (health <= 0)
             {
                 g.DrawImage(myPlaneImage, 0, -300);
                 x = 0;
@@ -589,6 +592,14 @@ namespace 飞机大战
                         {
                             MyPlane.score += 1;
                         }
+                        if (i < 0)
+                        {
+                            i = 0;
+                        }
+                        else
+                        {
+                            i++;
+                        }
                     }
                   
                     j++;               
@@ -606,4 +617,88 @@ namespace 飞机大战
         }
 
     }
+    public class EnemyBullet
+    {
+        private int x;
+        private int y;
+        public Image enbul = Resources.en_bul01;
+        public static List<EnemyBullet> enbulist = new List<EnemyBullet>();
+        private int speed;
+        private double k;
+        
+        
+        public EnemyBullet(int bx,int by,int sp,int px,int py) 
+        {
+            x =bx;
+            y = by;
+            speed = sp;
+            k =(1.0* (px - bx)) / (1.0*(py - by));
+        }
+        public static void ProduceEnbul()
+        {
+            for (int i = 0; i < Fighter.fighters.Count; i++)
+            {
+                if (new Random().Next(0, 10) == 5)
+                {
+                    EnemyBullet enbullet = new EnemyBullet(Fighter.fighters[i].fighter_x+25,Fighter.fighters[i].fighter_y+40,new Random().Next(10,15),MyPlane.x ,MyPlane.y);
+                    enbulist.Add(enbullet);
+                }
+            }
+        }
+        public void ShowEnbul(Graphics g)
+        {
+            g.DrawImage(enbul, x, y);
+        }
+
+        public static void Move(Graphics g)
+        {
+            int i = 0;
+            while (i < enbulist.Count)
+            {
+               enbulist[i] . ShowEnbul(g);
+                enbulist[i].y += enbulist [i]. speed;
+                enbulist[i].x += (int)(enbulist[i].speed * enbulist[i].k);
+                if (enbulist[i].y > 700 || enbulist[i].x < 0 || enbulist[i].x > 420)
+                {
+                    enbulist.Remove(enbulist[i]);
+                    i--;
+                }
+                if (i >= 0)
+                {
+                    i++;
+                }
+                else
+                {
+                    i = 0;
+                }
+            }
+        }
+        /// <summary>
+        /// 我方飞机碰撞检测方法
+        /// </summary>
+        /// <param name="g"></param>
+            public static void  isHitplane(Graphics g)
+            {
+            Rectangle rec1 = new Rectangle(MyPlane.x, MyPlane.y, 40, 50);
+            int i = 0;
+            while (i < enbulist.Count)
+            { Rectangle rec2 = new Rectangle(enbulist[i].x, enbulist[i].y, 6, 6);
+                if (rec1.IntersectsWith(rec2))
+                {
+                    enbulist.Remove(enbulist[i]);
+                    MyPlane.health -= 1;
+                    i--;
+                }
+                if (i >= 0)
+                {
+                    i++;
+                }
+                else
+                {
+                    i = 0;
+                }
+            }
+            }
+    }
+
 }
