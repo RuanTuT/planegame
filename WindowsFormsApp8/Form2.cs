@@ -8,11 +8,11 @@ namespace 飞机大战
 {
     public partial class Form2 : Form
     {
-        private const int speed = 2;//设置每次定时器触发时图片发生偏移的速度
+        private const int speed1 = 2;//设置每次定时器触发时图片发生偏移的速度
         public int pic_x = 0;
         public int pic_y = 0; //背景图片移动起始的坐标
         int shot_x = 200;//定义一个全局变量，保存shotgun出现的x坐标
-        int shot_y = -200;//炸弹出现时的y轴坐标
+        int shot_y = -100;//炸弹出现时的y轴坐标
         int blood_x = 200;//医疗包出现时的x坐标
         int blood_y = -50;//医疗包出现时的y轴坐标
         public Image[] images = new Image[4]; //设置多张背景图片，每次运行程序随机产生背景图片
@@ -61,7 +61,7 @@ namespace 飞机大战
         public void BackMove(Graphics g)//通过定时位置让图片发生偏移，防止有空白
         {
             g = this.CreateGraphics();
-            pic_y += speed;
+            pic_y += speed1;
             if (pic_y > 630)
             {
                 pic_y = 0;
@@ -72,7 +72,7 @@ namespace 飞机大战
         //定义一个随机产生炸弹的方法
         public void ProduceShotgun()
         {
-            if (shot_y == -200)
+            if (shot_y == -100)
             {
                 shot_x = new Random().Next(0, 360);//使炸弹出现的位置随机
             }
@@ -87,12 +87,12 @@ namespace 飞机大战
             if (isDropGun && !MyPlane.isGetGun && rec1.IntersectsWith(rec2))
             {
                 MyPlane.isGetGun = true;
-                shot_y = -200;//当飞机被炸弹击中时，使炸弹恢复初始位置
+                shot_y = -100;//当飞机被炸弹击中时，使炸弹恢复初始位置
             }
             shot_y += 4;//当飞机没有被炸弹击中时，使炸弹在窗口中不断移动
             if (shot_y > 600)
             {
-                shot_y = -200;
+                shot_y = -100;
             }
         }
         //
@@ -102,12 +102,12 @@ namespace 飞机大战
         {
             if (blood_y == -50)
             {
-                blood_x = new Random().Next(100, 400);
+                blood_x = new Random().Next(350,360);
             }
 
             Rectangle rec3 = new Rectangle(blood_x, 50, bloodImg.Width, bloodImg.Height);//创建一个医疗包大小的矩形
             Rectangle rec4 = new Rectangle(MyPlane.x, MyPlane.y, MyPlane.myPlaneImage.Width, MyPlane.myPlaneImage.Height);
-            if (new Random().Next(0, 200) == 50)//使医疗包随机投放
+            if (new Random().Next(0, 150) == 28)//使医疗包随机投放
             {
                 isDropBox = true;
                 blood_y = 50;
@@ -158,7 +158,7 @@ namespace 飞机大战
             {
                 g.DrawImage(boomimg, MyPlane.x, MyPlane.y);
                 shot_x = 200;
-                shot_y = -200;
+                shot_y = -100;
                 MyPlane.health -= 10;
                 MyPlane.isGetGun = false;
             }
@@ -245,10 +245,8 @@ namespace 飞机大战
         }
 
        private void timer4_Tick(object sender, EventArgs e)
-        {
-           if (MyPlane.result)
+        {    if(MyPlane.result==1||MyPlane.result==2)
             {
-                
                 this.Close();
             }
         }
@@ -264,7 +262,7 @@ namespace 飞机大战
         public static int y = 530;//绘制的飞机左上角顶点坐标
         public static int health = 100; //血量
 
-        private const int speed =6;//移动速度
+        
 
         public static Image myPlaneImage = Resources.plane;//我方飞机图片
         static List<Keys> keys = new List<Keys>();//键盘键列表，用于控制飞机移动
@@ -273,7 +271,7 @@ namespace 飞机大战
         public static bool isGetGun = false;//是否得到shotgun的标志
         public static bool isGetBlood = false;//是否得到bloodbox的标志
         public static int score = 0;      //得分
-        public static bool result = false;
+        public static int result = 0;
 
         /// <summary>
         /// 显示我方飞机
@@ -291,7 +289,15 @@ namespace 飞机大战
                 x = 0;
                 y = -300;
                 g.DrawImage(gameOver, 10, 260);
-                result = true;
+                result =2;
+            }
+            if(score>100)
+            {
+                g.DrawImage(myPlaneImage, 0, -300);
+                x = 0;
+                y = -300;
+                g.DrawImage(Resources.gameover, 10, 160);
+                result = 1;
             }
 
         }
@@ -322,18 +328,31 @@ namespace 飞机大战
 
         /// 用键盘控制我方飞机移动
         public static void MyPlaneMove()
-        {
+        {   int speed2 =5;//移动速度
+            if (IsKeyDown(Keys.Space))
+            {
+                speed2=10;
+               if(IsKeyDown(Keys.W)||IsKeyDown(Keys.S))
+                {
+                   MyBullet.speed4 =28;
+                }              
+            }
+            if (!IsKeyDown(Keys.Space))
+            {
+                MyBullet.speed4 = 22;
+            }
+           
             if (IsKeyDown(Keys.A))
             {
                 myPlaneImage = Resources.planeLeft;
-                x -= speed;
+                x -= speed2;
                 if (x < 5)
                     x = 5;
             }
             if (IsKeyDown(Keys.D))
             {
                 myPlaneImage = Resources.planeRight;
-                x += speed;
+                x += speed2;
                 if (x > 370)
                     x = 370;
 
@@ -344,13 +363,13 @@ namespace 飞机大战
             }
             if (IsKeyDown(Keys.W))
             {
-                y -= speed;
+                y -= speed2;
                 if (y < 5)
                     y = 5;
             }
             if (IsKeyDown(Keys.S))
             {
-                y += speed;
+                y += speed2;
                 if (y > 530)
                     y = 530;
             }
@@ -367,7 +386,7 @@ namespace 飞机大战
         Image greenImg;
         Image yellowImg;
         public Image fighterImg;//敌机图片
-        private const int speed = 4;//敌机图片移动速度
+        private const int speed3 = 4;//敌机图片移动速度
         public int fighter_x = 0;
         public int fighter_y = 0;//敌机图片移动起始的坐标
         public static List<Fighter> fighters = new List<Fighter>();//敌机对象列表
@@ -403,7 +422,7 @@ namespace 飞机大战
             switch (turn)
             {
                 case 1:
-                   if (ran.Next(0, 20)==4)
+                   if (ran.Next(0, 18)==4)
                     {
                         Fighter f = new Fighter(ran.Next(0, 350), ran.Next(0, 3));
                         fighters.Add(f);
@@ -417,7 +436,7 @@ namespace 飞机大战
                     }
                     break;
                 case 3:
-                    if (ran.Next(0, 8) == 4)
+                    if (ran.Next(0, 3) == 2)
                     {
                         Fighter f = new Fighter(ran.Next(0, 350), ran.Next(0, 3));
                         fighters.Add(f);
@@ -439,7 +458,7 @@ namespace 飞机大战
             for (int i = 0; i < fighters.Count; i++)
             {
                 fighters[i].FighterShow(g);
-                fighters[i].fighter_y += speed;
+                fighters[i].fighter_y += speed3;
                 if (fighters[i].fighter_y > 650)
                 {
                     fighters.Remove(fighters[i]);
@@ -458,7 +477,7 @@ namespace 飞机大战
     {
         private int x;//子弹横坐标
         private int y;//子弹纵坐标
-        private const int speed = 23;//移动速度
+        public  static int speed4 = 22;//移动速度
         public int Angle;//子弹角度
         private Image bulImg;//定义子弹图片
         private const double PI = Math.PI;
@@ -507,16 +526,16 @@ namespace 飞机大战
         {
             if (MyPlane.IsKeyDown(Keys.J))
             {
-                mybulList.Add(new MyBullet(MyPlane.x+13, MyPlane.y - 10, 0));
+                mybulList.Add(new MyBullet(MyPlane.x + 13, MyPlane.y - 10, 0));
             }
-            else if (MyPlane.IsKeyDown(Keys.K))
+            else if (MyPlane.IsKeyDown(Keys.K) && Fighter.turn == new Random().Next(2,4))
             {
                 mybulList.Add(new MyBullet(MyPlane.x+13, MyPlane.y - 10, 0));
                 mybulList.Add(new MyBullet(MyPlane.x + 13, MyPlane.y - 8, 60));
                 mybulList.Add(new MyBullet(MyPlane.x + 30, MyPlane.y - 12, 120));
 
             }
-            else if (MyPlane.IsKeyDown(Keys.L))
+            else if (MyPlane.IsKeyDown(Keys.L)&&Fighter.turn==3)
             {
                 mybulList.Add(new MyBullet(MyPlane.x+13, MyPlane.y - 10, 0));
                 mybulList.Add(new MyBullet(MyPlane.x + 13, MyPlane.y - 8, 60));
@@ -542,23 +561,23 @@ namespace 飞机大战
                 switch (mybulList[i].Angle)
                 {
                     case 0:
-                        mybulList[i].y -= (int)(speed / 2);
+                        mybulList[i].y -= (int)(speed4 / 2);
                         break;
                     case 30:
-                        mybulList[i].x += (int)(speed * Math.Cos(PI / 6));
-                        mybulList[i].y -= (int)(speed / 2);
+                        mybulList[i].x += (int)(speed4 * Math.Cos(PI / 6));
+                        mybulList[i].y -= (int)(speed4 / 2);
                         break;
                     case 60:
-                        mybulList[i].x += (int)(speed/ 2);
-                        mybulList[i].y -= (int)(speed * Math.Cos(PI / 6));
+                        mybulList[i].x += (int)(speed4/ 2);
+                        mybulList[i].y -= (int)(speed4 * Math.Cos(PI / 6));
                         break;
                     case 120:
-                        mybulList[i].x -= (int)(speed / 2);
-                        mybulList[i].y -= (int)(speed * Math.Cos(PI / 6));
+                        mybulList[i].x -= (int)(speed4/ 2);
+                        mybulList[i].y -= (int)(speed4 * Math.Cos(PI / 6));
                         break;
                     case 150:
-                        mybulList[i].x -= (int)(speed * Math.Cos(PI / 6));
-                        mybulList[i].y -= (int)(speed / 2);
+                        mybulList[i].x -= (int)(speed4 * Math.Cos(PI / 6));
+                        mybulList[i].y -= (int)(speed4 / 2);
                         break;
                 }
                 if (mybulList[i].y < -10 || mybulList[i].x > 415 || mybulList[i].x < 0)
@@ -588,10 +607,11 @@ namespace 飞机大战
                         g.DrawImage(booimg, Fighter.fighters[j].fighter_x, Fighter.fighters[j].fighter_y);
                         Fighter.fighters.Remove(Fighter.fighters[j]);
                         j--;
-                        if (MyPlane.score < 100)
+                        if (MyPlane.score <100)
                         {
                             MyPlane.score += 1;
                         }
+                     
                         if (i < 0)
                         {
                             i = 0;
